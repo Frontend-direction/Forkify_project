@@ -44,9 +44,7 @@ const controlSearch = async () => {
       alert( error);
       clearLoader();
     }
-
   }
-
 }
 
 elements.searchForm.addEventListener('submit', e => {
@@ -73,6 +71,13 @@ elements.searchResPages.addEventListener('click', e => {
 
   if(id) {
     // Prepare UI for changes
+    recipeView.clearRecipe();
+    renderLoader(elements.recipe);
+
+    // Highlight selected search item
+    if(state.search) {
+      searchView.highlightedSelected(id);
+    }
 
     // Create new recipe object
       state.recipe = new Recipe(id);
@@ -85,13 +90,30 @@ elements.searchResPages.addEventListener('click', e => {
         state.recipe.calcTime();
         state.recipe.calcServings();
       // Render the recipe
-  
-      console.log(state.recipe);
+      clearLoader();
+      recipeView.renderRecipe(state.recipe);
     } catch(error) {
-      alert('Error processing recipe');
+      alert(error);
     }
   }
  };
 
 ['hashchange', 'load'].forEach(event => window.addEventListener(event, controlRecipe));
+
+// Handling recipe btn clicks
+elements.recipe.addEventListener('click', e => {
+  if(e.target.matches('.btn-decrease, .btn-decrease *')) {
+    // Decrease btn is clicked
+    if(state.recipe.servings > 1) {
+      state.recipe.updateServings('dec');
+      recipeView.updateServingsIngredients(state.recipe);
+    }
+  } else if(e.target.matches('.btn-increase, .btn-increase *')) {
+    // increase btn is clicked
+    state.recipe.updateServings('inc');
+    recipeView.updateServingsIngredients(state.recipe);
+  }
+});
+
+
 
